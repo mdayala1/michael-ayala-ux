@@ -1,0 +1,23 @@
+---
+deployment:
+  tasks:
+    # Adjust these for your account name/path:
+    - export DEPLOYPATH="/home/michukll/public_html/ux"
+
+    # (Optional) If your host provides Node via an alternate path, prepend it:
+    # - export PATH="/opt/alt/alt-nodejs18/root/usr/bin:$PATH"
+
+    # Install deps & build (production)
+    - npm ci
+    - npm run build
+
+    # Create deploy folder if missing
+    - mkdir -p "$DEPLOYPATH"
+
+    # Copy built files to web root (and remove old ones)
+    - rsync -a --delete dist/ "$DEPLOYPATH"/
+
+    # Ensure SPA routing works
+    - if [ ! -f "$DEPLOYPATH/.htaccess" ]; then
+        printf "%s\n" "RewriteEngine On" "RewriteBase /ux/" "RewriteRule ^index\\.html$ - [L]" "RewriteCond %{REQUEST_FILENAME} !-f" "RewriteCond %{REQUEST_FILENAME} !-d" "RewriteRule . /ux/index.html [L]" > "$DEPLOYPATH/.htaccess";
+      fi
