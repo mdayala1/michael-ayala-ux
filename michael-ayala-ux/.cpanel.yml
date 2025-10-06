@@ -2,7 +2,7 @@
 deployment:
   tasks:
     # Adjust these for your account name/path:
-    - export DEPLOYPATH="/home/michukll/public_html/ux"
+    - export DEPLOYPATH="/home/michukll/public_html/ux/"
 
     # (Optional) If your host provides Node via an alternate path, prepend it:
     # - export PATH="/opt/alt/alt-nodejs18/root/usr/bin:$PATH"
