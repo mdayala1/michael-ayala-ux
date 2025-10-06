@@ -1,6 +1,27 @@
 ---
 deployment:
   tasks:
+    # Show versions in the log
+    - node -v || true
+    - npm -v || true
+
+    # Use Node 22 on cPanel (uncomment the line that matches your server)
+    - export PATH="/opt/alt/alt-nodejs22/root/usr/bin:$PATH"
+    # - export PATH="/opt/cpanel/ea-nodejs22/bin:$PATH"
+
+    # Optional: build-time key for your Admin Panel
+    - export VITE_EDIT_KEY="edit"
+
+    # Install & build
+    - npm ci
+    - npm run build
+
+    # Publish to your site folder
     - export DEPLOYPATH="$HOME/public_html/ux"
     - mkdir -p "$DEPLOYPATH"
-    - date > "$DEPLOYPATH/deployed.txt"
+    - rsync -a --delete dist/ "$DEPLOYPATH"/
+
+    # SPA fallback (first deploy only)
+    - if [ ! -f "$DEPLOYPATH/.htaccess" ]; then
+        printf "%s\n" "RewriteEngine On" "RewriteBase /ux/" "RewriteRule ^index\\.html$ - [L]" "RewriteCond %{REQUEST_FILENAME} !-f" "RewriteCond %{REQUEST_FILENAME} !-d" "RewriteRule . /ux/index.html [L]" > "$DEPLOYPATH/.htaccess";
+      fi
